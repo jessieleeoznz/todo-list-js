@@ -3,6 +3,8 @@
     <h1>{{ msg }}</h1>
     <div class="todo-list-frame">
       <div class="add-item-area">
+        <!-- <input id="toggle-all-input" type="checkbox" /> -->
+        <label for="toggle-all-input" class="toggle-all-label" @click="toggleAllItems()">_</label>
         <input
           class="add-item-input"
           type="text"
@@ -136,6 +138,9 @@ export default {
     },
     clearCompleted() {
       this.$store.commit(Actions.CLEAR_COMPLETED);
+    },
+    toggleAllItems() {
+      this.$store.commit(Actions.TOGGLE_ALL_ITEMS);
     }
   }
 };
@@ -146,6 +151,7 @@ export default {
 * {
   box-sizing: border-box;
 }
+
 h1 {
   font-weight: normal;
 }
@@ -166,10 +172,25 @@ h1 {
 }
 
 .add-item-area {
+  display: inline-flex;
   width: 100%;
   font-size: 25px;
   outline: none;
   border-bottom: 1px solid #ccc;
+}
+
+#toggle-all-input {
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.toggle-all-label {
+  width: 25px;
+  height: 25px;
+  margin: 11.5px;
+  cursor: pointer;
 }
 
 .add-item-input {

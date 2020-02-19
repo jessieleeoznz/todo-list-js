@@ -89,6 +89,14 @@ export default new Vuex.Store({
         [Actions.CLEAR_COMPLETED]:
             (state) => {
                 state.todos = state.todos.filter(todo => !todo.completed);
+            },
+        [Actions.TOGGLE_ALL_ITEMS]:
+            (state) => {
+                var uncompletedItem = state.todos.filter(todo => !todo.completed);
+                uncompletedItem.length > 0 ?
+                    state.todos.map((todo) => { todo.completed = true })
+                    :
+                    state.todos.map((todo) => { todo.completed = false });
             }
     }
 })
