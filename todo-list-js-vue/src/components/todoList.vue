@@ -1,90 +1,71 @@
 <template>
-  <div>
+  <div class="main-frame">
     <h1>{{ msg }}</h1>
-    <div class="todo-list-main">
+    <div class="todo-list-frame">
       <div class="add-item-area">
         <input
-          class="add-input-area"
+          class="add-item-input"
           type="text"
-          v-model="newTodo"
-          @keyup.enter="addTodo()"
+          :value="newItem"
+          @keyup.enter="addTodo"
           placeholder="input here to add a todo-item"
         />
-        <button class="button" @click="addTodo()">add</button>
       </div>
-      <div class="todo-list-area">
-        <hr />
-        <div class="list-button-area">
-          <div class="todo-items">
-            <div class="todo-item" v-for="(todo,index) in todosFilterd" :key="todo.id">
-              <input type="checkbox" v-model="todo.completed" />
-              <label
-                v-if="!todo.editing"
-                class="todo-item-label"
-                @dblclick="editTodo(todo)"
-              >{{ todo.title }}</label>
-              <input
-                v-else
-                type="text"
-                class="todo-item-input"
-                v-model="todo.title"
-                @blur="doneEdit(todo)"
-                @keyup.enter="doneEdit(todo)"
-                @keyup.esc="cancelTodo(todo)"
-                ref="edit"
-                v-focus
-              />
-              <button class="button" v-if="!todo.completed" @click="deleteTodo(todo,index)">x</button>
-            </div>
-          </div>
-          <div class="clear-button">
-            <button
-              class="button"
-              v-if="this.todos.filter(todo => todo.completed).length > 0"
-              v-show="filter ==='completed'"
-              @click="clearCompleted()"
-            >clear completed</button>
-          </div>
-        </div>
-        <hr />
-        <div class="button-area">
-          <div>
-            <button class="filter-button" @click="filter='all'">All</button>
-            <button class="filter-button" @click="filter='uncompleted'">uncompleted</button>
-            <button class="filter-button" @click="filter='completed'">completed</button>
-            <span class="remaining-span">{{this.filter}} items, {{remaining}} is left</span>
-          </div>
-        </div>
+      <div class="todo-item" v-for="item in todosFilterd" :key="item.id">
+        <label class="todo-item-checkbox-label">
+          <input
+            class="todo-item-checkbox-input"
+            type="checkbox"
+            :checked="item.completed"
+            @change="changeCompleteStatus(item.id)"
+          />
+          <span class="todo-item-checkbox-span"></span>
+        </label>
+        <label class="todo-item-label" v-if="item.id !== currentId">
+          <label class="todo-item-text" @dblclick="editTodo(item.id)">{{ item.title }}</label>
+          <label class="delete-label" v-if="!item.completed" @click="deleteTodo(item.id)">x</label>
+        </label>
+        <input
+          v-else
+          type="text"
+          class="todo-item-input"
+          :value="item.title"
+          @blur="doneEdit"
+          @keyup.enter="$event.target.blur()"
+          @keyup.esc="cancelTodo"
+          v-focus
+        />
       </div>
-    </div>;
+      <div class="filter-item-area">
+        <span class="remaining-span">{{ remaining }}</span>
+        <span class="filter-span">
+          <li
+            class="filter-li"
+            :class="{ filterd: filter === filterRadio }"
+            v-for="(filterRadio, index) in filterRadios"
+            :key="index"
+            :value="filterRadio"
+            @click="changeFilterKey(filterRadio)"
+          >{{ filterRadio }}</li>
+        </span>
+        <span
+          class="clear-span"
+          :style="{ visibility: needClear ? 'visible' : 'hidden' }"
+          @click="clearCompleted"
+        >clear completed</span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-const status = {
-  ALL: "all",
-  COMPLETED: "completed",
-  UNCOMPLETED: "uncompleted"
-};
+import * as Actions from "../store/mutation-types";
+import { FILTER_STATUS } from "../store/store";
 
 export default {
-  name: "todo-list",
   data() {
     return {
-      msg: "todo-list",
-      todo: "",
-      newTodo: "",
-      formerTodo: "",
-      newId: 2,
-      filter: status.ALL,
-      todos: [
-        {
-          id: 1,
-          title: "this is a example, double click to edit it",
-          completed: false,
-          editing: false
-        }
-      ]
+      newItem: ""
     };
   },
   directives: {
@@ -95,66 +76,66 @@ export default {
     }
   },
   computed: {
+    msg() {
+      return this.$store.state.msg;
+    },
+    allTodosLength() {
+      return this.$store.state.todos.length;
+    },
     todosFilterd() {
-      // if (this.filter === "uncompleted")
-      //   return this.todos.filter(todo => !todo.completed);
-      // else if (this.filter === "completed")
-      //   return this.todos.filter(todo => todo.completed);
-      // else return this.todos;
-
-      return this.filter === status.ALL
-        ? this.todos
-        : this.todos.filter(todo =>
-            this.filter === status.COMPLETED ? todo.completed : !todo.completed
-          );
+      return this.$store.getters.getTodosByFilterKey;
+    },
+    filter() {
+      return this.$store.state.filterKey;
+    },
+    currentId() {
+      return this.$store.getters.getCurrentId;
+    },
+    needClear() {
+      return this.$store.state.todos.filter(todo => todo.completed).length > 0;
     },
     remaining() {
-      return this.todosFilterd.length;
-      // if (this.filter === "uncompleted")
-      //   return this.todos.filter(todo => !todo.completed).length;
-      // else if (this.filter === "completed")
-      //   return this.todos.filter(todo => todo.completed).length;
-      // else return this.todos.length;
+      const allInfo = `${FILTER_STATUS.ALL} items:${this.allTodosLength}`;
+      const notAllInfo =
+        this.filter === FILTER_STATUS.ALL
+          ? ""
+          : `${this.filter} items:${this.todosFilterd.length}`;
+      return `${allInfo} ${notAllInfo}`;
+    },
+    filterRadios() {
+      return Object.values(FILTER_STATUS);
     }
   },
   methods: {
-    setFocus: function() {
-      this.$refs.edit.focus();
-    },
-    addTodo() {
-      if (!!this.newTodo.length) {
-        this.todos.push({
-          id: this.newId,
-          title: this.newTodo,
-          completed: false,
-          editing: false
-        });
+    addTodo(e) {
+      if (!!e.target.value.length) {
+        this.$store.commit(Actions.ADD_TODO, e.target.value);
       }
-      this.newTodo = "";
-      this.newId++;
+      this.newItem = "";
     },
-    editTodo(todo) {
-      this.formerTodo = todo.title;
-      todo.editing = !todo.completed;
-      // if (todo.completed === false) {
-      //   todo.editing = true;
-      // }
+    editTodo(id) {
+      this.$store.commit(Actions.EDIT_TODO, id);
     },
-    doneEdit(todo) {
-      if (todo.title.trim() === "") {
-        todo.title = this.formerTodo;
-      }
-      todo.editing = false;
+    updateEdit(e) {
+      this.$store.commit(Actions.UPDATE_EDIT, e.target.value);
     },
-    cancelTodo(todo) {
-      todo.title = this.formerTodo;
-      todo.editing = false;
+    doneEdit(e) {
+      this.$store.commit(Actions.DONE_EDIT, e.target.value);
     },
-    deleteTodo(todo, index) {
-      this.todos.splice(index, 1);
+    cancelTodo(e) {
+      this.$store.commit(Actions.CANCEL_TODO, e.target.value);
+    },
+    deleteTodo(id) {
+      this.$store.commit(Actions.DELETE_TODO, id);
+    },
+    changeFilterKey(key) {
+      this.$store.commit(Actions.CHANGE_FILTER_KEY, key);
+    },
+    changeCompleteStatus(id) {
+      this.$store.commit(Actions.CHANGE_COMPLETE_STATUS, id);
     },
     clearCompleted() {
-      this.todos = this.todos.filter(todo => !todo.completed);
+      this.$store.commit(Actions.CLEAR_COMPLETED);
     }
   }
 };
@@ -162,83 +143,183 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+* {
+  box-sizing: border-box;
+}
 h1 {
   font-weight: normal;
 }
 
-hr {
-  width: 100%;
-  height: 2px;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  background-color: grey;
-}
-
-.todo-list-main {
+.main-frame {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+.todo-list-frame {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  border: 2px solid #ccc;
+}
+
 .add-item-area {
-  width: 70%;
+  width: 100%;
+  font-size: 25px;
+  outline: none;
+  border-bottom: 1px solid #ccc;
+}
+
+.add-item-input {
+  width: 100%;
+  font-size: 25px;
+  padding: 8px;
+  color: #2c3e50;
+  outline: none;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  border: none;
+}
+
+.filter-item-area {
+  display: inline-flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px;
   text-align: left;
-  flex-grow: 1;
+  border-bottom: 1px solid #ccc;
+  font-size: 16px;
 }
 
-.add-input-area {
-  width: 85%;
-  font-size: 15px;
-  padding: 3px;
+.remaining-span {
+  width: 40%;
+  margin-left: 12px;
+  color: grey;
 }
 
-.button {
-  font-size: 13px;
-  margin: 1px 6px 1px 6px;
+.filter-span {
+  width: 40%;
 }
 
-.filter-button {
-  font-size: 13px;
-  margin: 1px 4px 1px 4px;
+.filter-li {
+  display: inline;
+  margin-right: 10px;
+  padding: 1px 8px 2px 8px;
 }
 
-.todo-list-area {
-  width: 70%;
-  margin-top: 20px;
-  text-align: left;
-  flex-grow: 12;
+.filter-li:hover {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.filterd {
+  border: 1px solid grey;
+  border-radius: 5px;
+}
+
+.clear-span {
+  width: 20%;
+}
+
+.clear-span:hover {
+  text-decoration-line: underline;
+}
+
+.todo-item {
+  width: 100%;
+  font-size: 25px;
+  display: inline-flex;
+  overflow-wrap: break-word;
+  border-bottom: 1px solid #ccc;
+  /* border: solid red 1px; */
+}
+
+.todo-item-checkbox-label {
+  display: inline-block;
+  /* position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px; */
+  width: 25px;
+  height: 25px;
+  margin: 11.5px;
+  cursor: pointer;
+  /* font-size: 25px; */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border: 1px solid grey;
+  border-radius: 5px;
+}
+
+.todo-item-checkbox-input {
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.todo-item-checkbox-span {
+  position: relative;
+  top: -32px;
+  left: 7px;
+}
+
+.todo-item-checkbox-input:checked ~ .todo-item-checkbox-span {
+  display: block;
+  content: "";
+  width: 8px;
+  height: 16px;
+  border: solid grey;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.todo-item-checkbox-input:checked .todo-item-label {
+  color: lightgrey;
 }
 
 .todo-item-label {
-  font-size: 15px;
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
+}
+
+.todo-item-text {
+  padding: 8px;
+}
+
+.todo-item:hover .delete-label {
+  visibility: visible;
+}
+
+.delete-label {
+  visibility: hidden;
+  padding: 8px 25px 8px 8px;
 }
 
 .todo-item-input {
-  font-size: 15px;
-  width: 70%;
+  font-size: 25px;
+  width: 100%;
+  padding: 8px;
+  border: solid grey 1px;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+}
+
+.todo-item-input:focus {
+  font-size: 25px;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  color: #2c3e50;
+  font-weight: inherit;
+  outline: none;
 }
 
 input:checked + label {
   color: lightgrey;
-}
-
-.todo-items {
-  overflow-y: scroll;
-  overflow-wrap: break-word;
-  height: 90%;
-}
-
-.list-button-area {
-  height: 400px;
-}
-
-.clear-button {
-  margin-bottom: 20px;
-  font-size: 15px;
-}
-
-.remaining-span {
-  margin-left: 12px;
-  color: grey;
 }
 </style>

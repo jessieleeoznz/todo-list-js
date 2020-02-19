@@ -5,29 +5,26 @@
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
-import todoList from './components/todoList'
-
-
+import todoList from "./todoList";
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld,
-    todoList,
+    todoList
   }
-}
+};
 </script>
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
 }
 
-body{
+body {
   height: 2000px;
+  background-color: whitesmoke;
 }
 </style>
