@@ -45,6 +45,9 @@ export default new Vuex.Store({
         getItemById: (state) => (id) => {
             return state.todos.find(todo => todo.id === id);
         },
+        isAllCompleted: (state) => {
+            return state.todos.filter(todo => !todo.completed).length === 0;
+        }
     },
     mutations: {
         [Actions.ADD_TODO]:

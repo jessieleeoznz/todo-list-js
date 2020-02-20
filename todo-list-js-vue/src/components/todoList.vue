@@ -3,8 +3,10 @@
     <h1>{{ msg }}</h1>
     <div class="todo-list-frame">
       <div class="add-item-area">
-        <!-- <input id="toggle-all-input" type="checkbox" /> -->
-        <label for="toggle-all-input" class="toggle-all-label" @click="toggleAllItems()">_</label>
+        <label class="toggle-all-label" @click="toggleAllItems()">
+          <i class="far fa-circle" :style="{display:isAllCompleted ?'none':'block'}"></i>
+          <i class="fas fa-check" :style="{display:isAllCompleted?'block':'none'}"></i>
+        </label>
         <input
           class="add-item-input"
           type="text"
@@ -13,30 +15,32 @@
           placeholder="input here to add a todo-item"
         />
       </div>
-      <div class="todo-item" v-for="item in todosFilterd" :key="item.id">
-        <label class="todo-item-checkbox-label">
-          <input
-            class="todo-item-checkbox-input"
-            type="checkbox"
-            :checked="item.completed"
-            @change="changeCompleteStatus(item.id)"
-          />
-          <span class="todo-item-checkbox-span"></span>
-        </label>
-        <label class="todo-item-label" v-if="item.id !== currentId">
-          <label class="todo-item-text" @dblclick="editTodo(item.id)">{{ item.title }}</label>
+      <div class="todo-item-area" v-for="item in todosFilterd" :key="item.id">
+        <label class="todo-item">
+          <label class="todo-item-label">
+            <label class="todo-item-checkbox-label" @click="changeCompleteStatus(item.id)">
+              <i class="far fa-circle" :style="{display:item.completed?'none':'block'}"></i>
+              <i class="far fa-check-circle" :style="{display:item.completed?'block':'none'}"></i>
+            </label>
+            <input class="todo-item-checkbox-input" type="checkbox" :checked="item.completed" />
+            <label
+              v-if="item.id !== currentId"
+              class="todo-item-text"
+              @dblclick="editTodo(item.id)"
+            >{{ item.title }}</label>
+            <input
+              v-else
+              type="text"
+              class="todo-item-input"
+              :value="item.title"
+              @blur="doneEdit"
+              @keyup.enter="$event.target.blur()"
+              @keyup.esc="cancelTodo"
+              v-focus
+            />
+          </label>
           <label class="delete-label" v-if="!item.completed" @click="deleteTodo(item.id)">x</label>
         </label>
-        <input
-          v-else
-          type="text"
-          class="todo-item-input"
-          :value="item.title"
-          @blur="doneEdit"
-          @keyup.enter="$event.target.blur()"
-          @keyup.esc="cancelTodo"
-          v-focus
-        />
       </div>
       <div class="filter-item-area">
         <span class="remaining-span">{{ remaining }}</span>
@@ -50,11 +54,13 @@
             @click="changeFilterKey(filterRadio)"
           >{{ filterRadio }}</li>
         </span>
-        <span
-          class="clear-span"
-          :style="{ visibility: needClear ? 'visible' : 'hidden' }"
-          @click="clearCompleted"
-        >clear completed</span>
+        <span class="clear-span">
+          <li
+            class="clear-li"
+            :style="{ visibility: needClear ? 'visible' : 'hidden' }"
+            @click="clearCompleted"
+          >clear completed</li>
+        </span>
       </div>
     </div>
   </div>
@@ -106,6 +112,9 @@ export default {
     },
     filterRadios() {
       return Object.values(FILTER_STATUS);
+    },
+    isAllCompleted() {
+      return this.$store.getters.isAllCompleted;
     }
   },
   methods: {
@@ -154,6 +163,7 @@ export default {
 
 h1 {
   font-weight: normal;
+  margin: 30px;
 }
 
 .main-frame {
@@ -179,13 +189,6 @@ h1 {
   border-bottom: 1px solid #ccc;
 }
 
-#toggle-all-input {
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
-}
-
 .toggle-all-label {
   width: 25px;
   height: 25px;
@@ -196,11 +199,88 @@ h1 {
 .add-item-input {
   width: 100%;
   font-size: 25px;
-  padding: 8px;
   color: #2c3e50;
   outline: none;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   border: none;
+}
+
+.todo-item-area {
+  width: 100%;
+  display: inline-flex;
+}
+
+.todo-item {
+  width: 100%;
+  font-size: 25px;
+  display: inline-flex;
+  overflow-wrap: break-word;
+  border-bottom: 1px solid #ccc;
+}
+
+.todo-item-label {
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
+}
+
+.todo-item-checkbox-label {
+  width: 25px;
+  height: 25px;
+  margin: 11.5px;
+  cursor: pointer;
+}
+
+.far {
+  color: gray;
+}
+
+.fas {
+  color: gray;
+}
+
+.todo-item-checkbox-input {
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+  margin: 0px;
+}
+
+.todo-item-text {
+  width: 100%;
+  padding: 8px 8px 8px 1px;
+  text-align: left;
+}
+
+.todo-item-input {
+  font-size: 25px;
+  width: 100%;
+  border: none;
+  padding: 0px;
+  padding: 7px 7px 7px 0px;
+  border: solid grey 1px;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+}
+
+.todo-item-input:focus {
+  color: #2c3e50;
+  font-weight: inherit;
+  outline: none;
+}
+
+input:checked + label {
+  color: lightgrey;
+}
+
+.delete-label {
+  visibility: hidden;
+  padding: 8px 25px 8px 8px;
+  cursor: pointer;
+}
+
+.todo-item:hover .delete-label {
+  visibility: visible;
 }
 
 .filter-item-area {
@@ -232,6 +312,7 @@ h1 {
 .filter-li:hover {
   border: 1px solid #ccc;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 .filterd {
@@ -243,104 +324,16 @@ h1 {
   width: 20%;
 }
 
-.clear-span:hover {
-  text-decoration-line: underline;
-}
-
-.todo-item {
-  width: 100%;
-  font-size: 25px;
-  display: inline-flex;
-  overflow-wrap: break-word;
-  border-bottom: 1px solid #ccc;
-  /* border: solid red 1px; */
-}
-
-.todo-item-checkbox-label {
-  display: inline-block;
-  /* position: relative;
-  padding-left: 35px;
-  margin-bottom: 12px; */
-  width: 25px;
-  height: 25px;
-  margin: 11.5px;
-  cursor: pointer;
-  /* font-size: 25px; */
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+.clear-li {
+  display: inline;
   border: 1px solid grey;
   border-radius: 5px;
+  padding: 1px 8px 2px 8px;
 }
 
-.todo-item-checkbox-input {
-  opacity: 0;
+.clear-li:hover {
+  border: 1px solid #ccc;
+  border-radius: 5px;
   cursor: pointer;
-  height: 0;
-  width: 0;
-}
-
-.todo-item-checkbox-span {
-  position: relative;
-  top: -32px;
-  left: 7px;
-}
-
-.todo-item-checkbox-input:checked ~ .todo-item-checkbox-span {
-  display: block;
-  content: "";
-  width: 8px;
-  height: 16px;
-  border: solid grey;
-  border-width: 0 3px 3px 0;
-  -webkit-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
-  transform: rotate(45deg);
-}
-
-.todo-item-checkbox-input:checked .todo-item-label {
-  color: lightgrey;
-}
-
-.todo-item-label {
-  width: 100%;
-  display: inline-flex;
-  justify-content: space-between;
-}
-
-.todo-item-text {
-  padding: 8px;
-}
-
-.todo-item:hover .delete-label {
-  visibility: visible;
-}
-
-.delete-label {
-  visibility: hidden;
-  padding: 8px 25px 8px 8px;
-}
-
-.todo-item-input {
-  font-size: 25px;
-  width: 100%;
-  padding: 8px;
-  border: solid grey 1px;
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-}
-
-.todo-item-input:focus {
-  font-size: 25px;
-  width: 100%;
-  padding: 8px;
-  border: none;
-  color: #2c3e50;
-  font-weight: inherit;
-  outline: none;
-}
-
-input:checked + label {
-  color: lightgrey;
 }
 </style>
