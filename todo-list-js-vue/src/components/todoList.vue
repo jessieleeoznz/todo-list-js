@@ -3,7 +3,7 @@
     <h1>{{ msg }}</h1>
     <div class="todo-list-frame">
       <div class="add-item-area">
-        <label class="toggle-all-label" @click="toggleAllItems()">
+        <label class="tick-label" @click="toggleAllItems()">
           <i class="far fa-circle" :style="{display:isAllCompleted ?'none':'block'}"></i>
           <i class="fas fa-check" :style="{display:isAllCompleted?'block':'none'}"></i>
         </label>
@@ -18,7 +18,7 @@
       <div class="todo-item-area" v-for="item in todosFilterd" :key="item.id">
         <label class="todo-item">
           <label class="todo-item-label">
-            <label class="todo-item-checkbox-label" @click="changeCompleteStatus(item.id)">
+            <label class="tick-label" @click="changeCompleteStatus(item.id)">
               <i class="far fa-circle" :style="{display:item.completed?'none':'block'}"></i>
               <i class="far fa-check-circle" :style="{display:item.completed?'block':'none'}"></i>
             </label>
@@ -189,7 +189,7 @@ h1 {
   border-bottom: 1px solid #ccc;
 }
 
-.toggle-all-label {
+.tick-label {
   width: 25px;
   height: 25px;
   margin: 11.5px;
@@ -222,13 +222,6 @@ h1 {
   width: 100%;
   display: inline-flex;
   justify-content: space-between;
-}
-
-.todo-item-checkbox-label {
-  width: 25px;
-  height: 25px;
-  margin: 11.5px;
-  cursor: pointer;
 }
 
 .far {
@@ -265,7 +258,6 @@ h1 {
 
 .todo-item-input:focus {
   color: #2c3e50;
-  font-weight: inherit;
   outline: none;
 }
 
