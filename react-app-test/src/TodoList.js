@@ -24,6 +24,11 @@ export class TodoList extends React.Component {
     };
   }
 
+  handleChange = event => {
+    event.preventDefault();
+    this.setState({ currentTitle: event.target.value });
+  };
+
   handleSubmit = event => {
     event.preventDefault();
     this.setState(state => ({
@@ -82,7 +87,6 @@ export class TodoList extends React.Component {
   };
 
   handleDelete = id => {
-    console.log(this.state.todos.filter(item => item.id !== id));
     this.setState(state => ({
       todos: state.todos.filter(item => item.id !== id)
     }));
@@ -110,9 +114,7 @@ export class TodoList extends React.Component {
             type="text"
             className="add-item-input"
             value={this.state.currentTitle}
-            onChange={event =>
-              this.setState({ currentTitle: event.target.value })
-            }
+            onChange={this.handleChange}
             placeholder="enter to add a todolist"
             required
           />
