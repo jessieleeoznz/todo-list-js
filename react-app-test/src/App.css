@@ -1,0 +1,224 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1 {
+  font-weight: normal;
+  margin: 30px;
+}
+
+.main-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.todo-list-frame {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  border: 2px solid #ccc;
+}
+
+.add-item-area {
+  display: inline-flex;
+  width: 100%;
+  font-size: 25px;
+  outline: none;
+  border-bottom: 1px solid #ccc;
+}
+
+.tick-label {
+  width: 25px;
+  height: 25px;
+  margin: 11.5px;
+  cursor: pointer;
+}
+
+.add-item-input {
+  width: 100%;
+  font-size: 25px;
+  color: #2c3e50;
+  outline: none;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  border: none;
+}
+
+.todo-item-area {
+  width: 100%;
+  display: inline-flex;
+}
+
+.todo-item {
+  width: 100%;
+  font-size: 25px;
+  display: inline-flex;
+  overflow-wrap: break-word;
+  border-bottom: 1px solid #ccc;
+}
+
+.todo-item-label {
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
+}
+
+.far {
+  color: gray;
+}
+
+.fas {
+  color: gray;
+}
+
+.todo-item-checkbox-input {
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+  margin: 0px;
+}
+
+.todo-item-text {
+  width: 100%;
+  padding: 8px 8px 8px 1px;
+  text-align: left;
+}
+
+.todo-item-input {
+  font-size: 25px;
+  width: 100%;
+  border: none;
+  padding: 0px;
+  padding: 7px 7px 7px 0px;
+  border: solid grey 1px;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+}
+
+.todo-item-input:focus {
+  color: #2c3e50;
+  outline: none;
+}
+
+input:checked + label {
+  color: lightgrey;
+}
+
+.delete-label {
+  visibility: hidden;
+  padding: 8px 25px 8px 8px;
+  cursor: pointer;
+}
+
+.todo-item:hover .delete-label {
+  visibility: visible;
+}
+
+.filter-item-area {
+  display: inline-flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.remaining-span {
+  width: 40%;
+  margin-left: 12px;
+  color: grey;
+}
+
+.filter-span {
+  width: 40%;
+}
+
+.filter-li {
+  display: inline;
+  margin-right: 10px;
+  padding: 1px 8px 2px 8px;
+}
+
+.filter-li:hover {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.filterd {
+  border: 1px solid grey;
+  border-radius: 5px;
+}
+
+.clear-span {
+  width: 20%;
+}
+
+.clear-li {
+  display: inline;
+  border: 1px solid grey;
+  border-radius: 5px;
+  padding: 1px 8px 2px 8px;
+}
+
+.clear-li:hover {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
