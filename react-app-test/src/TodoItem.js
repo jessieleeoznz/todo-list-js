@@ -9,21 +9,25 @@ export class TodoItem extends React.Component {
     };
   }
 
-  handleKeyDown = event => {
-    console.log("press", event.key, event.keycode);
-    if (event.keycode === "13") {
-      this.props.handleeditenter(this.state.currentvalue, this.props.todo.id);
-      this.setstate({ currentid: -1 });
-    } else if (event.keycode === "27") {
-      this.setstate({ currentid: -1 });
+  handleChange = event => {
+    event.preventDefault();
+    this.setState({ currentValue: event.target.value });
+  };
+
+  handleEdit = event => {
+    if (event.keyCode === 13) {
+      this.props.handleEditEnter(this.state.currentValue, this.props.todo.id);
+      this.setState({ currentId: -1 });
+    } else if (event.keyCode === 27) {
+      this.setState({ currentId: -1 });
     }
   };
 
-  handledoubleclicked = event => {
-    event.preventdefault();
-    this.setstate({
-      currentid: this.props.todo.id,
-      currentvalue: this.props.todo.title
+  handleDoubleClicked = event => {
+    event.preventDefault();
+    this.setState({
+      currentId: this.props.todo.id,
+      currentValue: this.props.todo.title
     });
   };
 
@@ -34,7 +38,7 @@ export class TodoItem extends React.Component {
           <label className="todo-item-label">
             <label
               className="tick-label"
-              onClick={this.props.handlechangecompletedstatus}
+              onClick={this.props.handleChangeCompletedStatus}
             >
               <i
                 className="far fa-circle"
@@ -60,14 +64,14 @@ export class TodoItem extends React.Component {
                 className="todo-item-input"
                 value={this.state.currentValue}
                 onChange={this.handleChange}
-                handleKeyDown={this.handleKeyDown}
+                onKeyDown={this.handleEdit}
               />
             ) : (
               <label
                 className="todo-item-text"
                 onDoubleClick={this.handleDoubleClicked}
               >
-                {this.props.todo.title}{" "}
+                {this.props.todo.title}
               </label>
             )}
           </label>
