@@ -26,7 +26,6 @@ export class TodoList extends React.Component {
 
   handleSubmit = event => {
     event.preventDefault();
-    console.log(this.state.currentTitle);
     this.setState(state => ({
       todos: [
         ...state.todos,

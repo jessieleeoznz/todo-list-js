@@ -14,13 +14,17 @@ export class TodoItem extends React.Component {
     this.setState({ currentValue: event.target.value });
   };
 
-  handleEdit = event => {
+  handleKeyDown = event => {
     if (event.keyCode === 13) {
-      this.props.handleEditEnter(this.state.currentValue, this.props.todo.id);
-      this.setState({ currentId: -1 });
+      this.handleKeyEnter();
     } else if (event.keyCode === 27) {
       this.setState({ currentId: -1 });
     }
+  };
+
+  handleKeyEnter = () => {
+    this.props.handleEditEnter(this.state.currentValue, this.props.todo.id);
+    this.setState({ currentId: -1 });
   };
 
   handleDoubleClicked = event => {
@@ -53,23 +57,23 @@ export class TodoItem extends React.Component {
                 }}
               ></i>
             </label>
-            <input
-              className="todo-item-checkbox-input"
-              type="checkbox"
-              defaultChecked={this.props.todo.completed}
-            />
+            <input className="todo-item-checkbox-input" type="checkbox" />
             {this.state.currentId === this.props.todo.id ? (
               <input
                 type="text"
                 className="todo-item-input"
                 value={this.state.currentValue}
                 onChange={this.handleChange}
-                onKeyDown={this.handleEdit}
+                onKeyDown={this.handleKeyDown}
+                onBlur={this.handleKeyEnter}
               />
             ) : (
               <label
                 className="todo-item-text"
                 onDoubleClick={this.handleDoubleClicked}
+                style={{
+                  color: this.props.todo.completed ? "lightgrey" : "black"
+                }}
               >
                 {this.props.todo.title}
               </label>
