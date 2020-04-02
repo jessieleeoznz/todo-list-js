@@ -32,6 +32,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -44,6 +45,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: whitesmoke;
 }
 
 code {
@@ -155,7 +157,7 @@ h1 {
   outline: none;
 }
 
-input:checked + label {
+input:checked+label {
   color: lightgrey;
 }
 
@@ -202,6 +204,9 @@ input:checked + label {
 }
 
 .filterd {
+  display: inline;
+  margin-right: 10px;
+  padding: 1px 8px 2px 8px;
   border: 1px solid grey;
   border-radius: 5px;
 }

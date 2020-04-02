@@ -9,25 +9,25 @@ export class TodoItem extends React.Component {
     };
   }
 
-  handleChange = event => {
+  handleEditChange = event => {
     event.preventDefault();
     this.setState({ currentValue: event.target.value });
   };
 
-  handleKeyDown = event => {
+  handleEditKeyDown = event => {
     if (event.keyCode === 13) {
-      this.handleKeyEnter();
+      this.handleEditKeyEnter();
     } else if (event.keyCode === 27) {
       this.setState({ currentId: -1 });
     }
   };
 
-  handleKeyEnter = () => {
+  handleEditKeyEnter = () => {
     this.props.handleEditEnter(this.state.currentValue, this.props.todo.id);
     this.setState({ currentId: -1 });
   };
 
-  handleDoubleClicked = event => {
+  handleItemDoubleClicked = event => {
     event.preventDefault();
     this.setState({
       currentId: this.props.todo.id,
@@ -63,14 +63,14 @@ export class TodoItem extends React.Component {
                 type="text"
                 className="todo-item-input"
                 value={this.state.currentValue}
-                onChange={this.handleChange}
-                onKeyDown={this.handleKeyDown}
-                onBlur={this.handleKeyEnter}
+                onChange={this.handleEditChange}
+                onKeyDown={this.handleEditKeyDown}
+                onBlur={this.handleEditKeyEnter}
               />
             ) : (
               <label
                 className="todo-item-text"
-                onDoubleClick={this.handleDoubleClicked}
+                onDoubleClick={this.handleItemDoubleClicked}
                 style={{
                   color: this.props.todo.completed ? "lightgrey" : "black"
                 }}
@@ -79,7 +79,7 @@ export class TodoItem extends React.Component {
               </label>
             )}
           </label>
-          <label className="delete-label" onClick={this.props.handleDelete}>
+          <label className="delete-label" onClick={this.props.handleItemDelete}>
             x
           </label>
         </label>
