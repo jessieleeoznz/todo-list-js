@@ -14,20 +14,18 @@ export class TodoList extends React.Component {
     super(props);
     this.state = {
       newId: 3,
-      currentTitle: "",
+      currentNewTitle: "",
       filterKey: FILTER_STATUS.ALL,
       todos: [
         {
           id: 1,
           title: "this is the first example, double click to edit it",
-          completed: false,
-          editing: false
+          completed: false
         },
         {
           id: 2,
           title: "this is the second example, double click to edit it",
-          completed: false,
-          editing: false
+          completed: false
         }
       ]
     };
@@ -35,7 +33,7 @@ export class TodoList extends React.Component {
 
   handleAddChange = event => {
     event.preventDefault();
-    this.setState({ currentTitle: event.target.value });
+    this.setState({ currentNewTitle: event.target.value });
   };
 
   handleAddSubmit = event => {
@@ -45,21 +43,20 @@ export class TodoList extends React.Component {
         ...state.todos,
         {
           id: this.state.newId,
-          title: this.state.currentTitle,
-          completed: false,
-          editing: false
+          title: this.state.currentNewTitle,
+          completed: false
         }
       ],
       newId: state.newId + 1,
-      currentTitle: ""
+      currentNewTitle: ""
     }));
   };
 
   handleEditEnter = (currentValue, id) => {
     if (currentValue !== "") {
       this.setState(state => {
-        const todos = state.todos.map(item => {
-          return { ...item, title: item.id === id ? currentValue : item.title };
+        const todos = state.todos.map(todo => {
+          return { ...todo, title: todo.id === id ? currentValue : todo.title };
         });
         return { todos };
       });
@@ -67,18 +64,16 @@ export class TodoList extends React.Component {
   };
 
   isAllCompleted = state => {
-    return state.todos.filter(item => !item.completed).length === 0;
+    return state.todos.filter(todo => !todo.completed).length === 0;
   };
 
   handleToggleAllItems = () => {
     this.setState(state => {
-      const todos = state.todos.map(item => {
+      const isAllCompleted = this.isAllCompleted(state);
+      const todos = state.todos.map(todo => {
         return {
-          ...item,
-          completed:
-            state.todos.filter(item => !item.completed).length === 0
-              ? false
-              : true
+          ...todo,
+          completed: !isAllCompleted
         };
       });
       return { todos };
@@ -87,10 +82,10 @@ export class TodoList extends React.Component {
 
   handleChangeCompletedStatus = (currentCompletedStatus, id) => {
     this.setState(state => {
-      const todos = state.todos.map(item => {
+      const todos = state.todos.map(todo => {
         return {
-          ...item,
-          completed: item.id === id ? !currentCompletedStatus : item.completed
+          ...todo,
+          completed: todo.id === id ? !currentCompletedStatus : todo.completed
         };
       });
       return { todos };
@@ -99,67 +94,71 @@ export class TodoList extends React.Component {
 
   handleItemDelete = id => {
     this.setState(state => ({
-      todos: state.todos.filter(item => item.id !== id)
+      todos: state.todos.filter(todo => todo.id !== id)
     }));
   };
 
-  handleTodosByFilterKey = filterKey => {
+  getTodosByFilterKey = filterKey => {
     const isFilterCompleted = filterKey === FILTER_STATUS.COMPLETED;
     return filterKey === FILTER_STATUS.ALL
       ? this.state.todos
-      : this.state.todos.filter(item => item.completed === isFilterCompleted);
+      : this.state.todos.filter(todo => todo.completed === isFilterCompleted);
   };
 
   handleChangeFilterKey = filterRadio => {
     this.setState({ filterKey: filterRadio });
   };
 
-  needClear = state => {
-    return state.todos.filter(item => item.completed).length > 0;
+  isNeededClear = state => {
+    return state.todos.filter(todo => todo.completed).length > 0;
   };
 
   clearCompleted = () => {
     this.setState(state => {
-      const todos = state.todos.filter(item => !item.completed);
+      const todos = state.todos.filter(todo => !todo.completed);
       return { todos };
     });
   };
 
+  getButtonClassByFilterKey(filterRadio) {
+    return this.state.filterKey === filterRadio ? "filtered" : "filter-li";
+  }
+
+  buildCheckIcon() {
+    const className = this.isAllCompleted(this.state)
+      ? "fas fa-check"
+      : "far fa-circle";
+    return <i className={className}></i>;
+  }
+
   render() {
-    const allItemInfo = `${FILTER_STATUS.ALL} items:${this.state.todos.length}`;
+    const CLEAR_BUTTON = "clear completed";
     const notAllItemInfo =
       this.state.filterKey === FILTER_STATUS.ALL
         ? ""
-        : `   ${this.state.filterKey} items:${
-            this.handleTodosByFilterKey(this.state.filterKey).length
+        : `${this.state.filterKey} items:${
+            this.getTodosByFilterKey(this.state.filterKey).length
           }`;
+    const itemInfo = `${FILTER_STATUS.ALL} items:${this.state.todos.length} ${notAllItemInfo}`;
+    const showClearButton = {
+      visibility: this.isNeededClear(this.state) ? "visible" : "hidden"
+    };
     return (
       <div className="todo-list-frame">
         <form className="add-item-area" onSubmit={this.handleAddSubmit}>
           <label className="tick-label" onClick={this.handleToggleAllItems}>
-            <i
-              className="far fa-circle"
-              style={{
-                display: this.isAllCompleted(this.state) ? "none" : "block"
-              }}
-            ></i>
-            <i
-              className="fas fa-check"
-              style={{
-                display: this.isAllCompleted(this.state) ? "block" : "none"
-              }}
-            ></i>
+            {this.buildCheckIcon()}
           </label>
           <input
             type="text"
             className="add-item-input"
-            value={this.state.currentTitle}
+            value={this.state.currentNewTitle}
             onChange={this.handleAddChange}
-            placeholder="enter to add a todolist"
+            placeholder="enter to add a todo list"
             required
           />
         </form>
-        {this.handleTodosByFilterKey(this.state.filterKey).map(todo => (
+        {this.getTodosByFilterKey(this.state.filterKey).map(todo => (
           <TodoItem
             key={todo.id}
             todo={todo}
@@ -171,37 +170,26 @@ export class TodoList extends React.Component {
           />
         ))}
         <div className="filter-item-area">
-          <span className="remaining-span">
-            {allItemInfo}
-            {notAllItemInfo}
-          </span>
+          <span className="remaining-span">{itemInfo}</span>
           <span className="filter-span">
-            {filterRadios.map((filterRadio, index) => {
-              return (
-                <li
-                  className={
-                    this.state.filterKey === filterRadio
-                      ? "filterd"
-                      : "filter-li"
-                  }
-                  key={index}
-                  value={filterRadio}
-                  onClick={() => this.handleChangeFilterKey(filterRadio)}
-                >
-                  {filterRadio}
-                </li>
-              );
-            })}
+            {filterRadios.map((filterRadio, index) => (
+              <li
+                className={this.getButtonClassByFilterKey(filterRadio)}
+                key={index}
+                value={filterRadio}
+                onClick={() => this.handleChangeFilterKey(filterRadio)}
+              >
+                {filterRadio}
+              </li>
+            ))}
           </span>
           <span className="clear-span">
             <li
               className="clear-li"
-              style={{
-                visibility: this.needClear(this.state) ? "visible" : "hidden"
-              }}
+              style={showClearButton}
               onClick={this.clearCompleted}
             >
-              clear completed
+              {CLEAR_BUTTON}
             </li>
           </span>
         </div>
