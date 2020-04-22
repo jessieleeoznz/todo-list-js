@@ -1,199 +1,174 @@
-import React from "react";
+import React, { useState } from "react";
 import { TodoItem } from "./TodoItem";
 
 export const FILTER_STATUS = {
   ALL: "all",
   UNCOMPLETED: "uncompleted",
-  COMPLETED: "completed"
+  COMPLETED: "completed",
 };
 
 export const filterRadios = Object.values(FILTER_STATUS);
 
-export class TodoList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      newId: 3,
-      currentNewTitle: "",
-      filterKey: FILTER_STATUS.ALL,
-      todos: [
-        {
-          id: 1,
-          title: "this is the first example, double click to edit it",
-          completed: false
-        },
-        {
-          id: 2,
-          title: "this is the second example, double click to edit it",
-          completed: false
-        }
-      ]
-    };
-  }
+export function TodoList() {
+  const CLEAR_BUTTON = "clear completed";
+  const [newId, setNewId] = useState(3);
+  const [currentNewTitle, setCurrentNewTitle] = useState("");
+  const [filterKey, setFilterKey] = useState(FILTER_STATUS.ALL);
+  const [todos, setTodos] = useState([
+    {
+      id: 1,
+      title: "this is the first example, double click to edit it",
+      completed: false,
+    },
+    {
+      id: 2,
+      title: "this is the second example, double click to edit it",
+      completed: false,
+    },
+  ]);
 
-  handleAddChange = event => {
-    event.preventDefault();
-    this.setState({ currentNewTitle: event.target.value });
+  const handleAddChange = (e) => {
+    e.preventDefault();
+    setCurrentNewTitle(e.target.value);
   };
 
-  handleAddSubmit = event => {
-    event.preventDefault();
-    this.setState(state => ({
-      todos: [
-        ...state.todos,
-        {
-          id: this.state.newId,
-          title: this.state.currentNewTitle,
-          completed: false
-        }
-      ],
-      newId: state.newId + 1,
-      currentNewTitle: ""
-    }));
+  const handleAddSubmit = (e) => {
+    e.preventDefault();
+    setTodos([
+      ...todos,
+      {
+        id: newId,
+        title: currentNewTitle,
+        completed: false,
+      },
+    ]);
+    setNewId(newId + 1);
+    setCurrentNewTitle("");
   };
 
-  handleEditEnter = (currentValue, id) => {
+  const handleEditEnter = (currentValue, id) => {
     if (currentValue !== "") {
-      this.setState(state => {
-        const todos = state.todos.map(todo => {
+      setTodos(
+        todos.map((todo) => {
           return { ...todo, title: todo.id === id ? currentValue : todo.title };
-        });
-        return { todos };
-      });
+        })
+      );
     }
   };
 
-  isAllCompleted = state => {
-    return state.todos.filter(todo => !todo.completed).length === 0;
+  const getCheckIcon = () => {
+    const className = isAllCompleted() ? "fas fa-check" : "far fa-circle";
+    return <i className={className}></i>;
   };
 
-  handleToggleAllItems = () => {
-    this.setState(state => {
-      const isAllCompleted = this.isAllCompleted(state);
-      const todos = state.todos.map(todo => {
+  const isAllCompleted = () => {
+    return todos.filter((todo) => !todo.completed).length === 0;
+  };
+
+  const handleToggleAllItems = () => {
+    const isAllCompletedResult = isAllCompleted();
+    setTodos(
+      todos.map((todo) => {
         return {
           ...todo,
-          completed: !isAllCompleted
+          completed: !isAllCompletedResult,
         };
-      });
-      return { todos };
-    });
+      })
+    );
   };
 
-  handleChangeCompletedStatus = (currentCompletedStatus, id) => {
-    this.setState(state => {
-      const todos = state.todos.map(todo => {
+  const handleChangeCompletedStatus = (currentCompletedStatus, id) =>
+    setTodos(
+      todos.map((todo) => {
         return {
           ...todo,
-          completed: todo.id === id ? !currentCompletedStatus : todo.completed
+          completed: todo.id === id ? !currentCompletedStatus : todo.completed,
         };
-      });
-      return { todos };
-    });
+      })
+    );
+
+  const handleItemDelete = (id) =>
+    setTodos(todos.filter((todo) => todo.id !== id));
+
+  const getButtonStyleByFilterKey = (filterRadio) => {
+    return filterKey === filterRadio ? "filtered" : "filter-li";
   };
 
-  handleItemDelete = id => {
-    this.setState(state => ({
-      todos: state.todos.filter(todo => todo.id !== id)
-    }));
-  };
+  const handleChangeFilterKey = (filterRadio) => setFilterKey(filterRadio);
 
-  getTodosByFilterKey = filterKey => {
+  const getTodosByFilterKey = (filterKey) => {
     const isFilterCompleted = filterKey === FILTER_STATUS.COMPLETED;
     return filterKey === FILTER_STATUS.ALL
-      ? this.state.todos
-      : this.state.todos.filter(todo => todo.completed === isFilterCompleted);
+      ? todos
+      : todos.filter((todo) => todo.completed === isFilterCompleted);
   };
 
-  handleChangeFilterKey = filterRadio => {
-    this.setState({ filterKey: filterRadio });
+  const isNeededClear = () => {
+    return todos.filter((todo) => todo.completed).length > 0;
   };
 
-  isNeededClear = state => {
-    return state.todos.filter(todo => todo.completed).length > 0;
+  const handleClearCompleted = () =>
+    setTodos(todos.filter((todo) => !todo.completed));
+
+  const notAllItemInfo =
+    filterKey === FILTER_STATUS.ALL
+      ? ""
+      : `${filterKey} items:${getTodosByFilterKey(filterKey).length}`;
+
+  const jointedItemInfo = `${FILTER_STATUS.ALL} items:${todos.length} ${notAllItemInfo}`;
+
+  const showClearButton = {
+    visibility: isNeededClear ? "visible" : "hidden",
   };
 
-  clearCompleted = () => {
-    this.setState(state => {
-      const todos = state.todos.filter(todo => !todo.completed);
-      return { todos };
-    });
-  };
-
-  getButtonClassByFilterKey(filterRadio) {
-    return this.state.filterKey === filterRadio ? "filtered" : "filter-li";
-  }
-
-  buildCheckIcon() {
-    const className = this.isAllCompleted(this.state)
-      ? "fas fa-check"
-      : "far fa-circle";
-    return <i className={className}></i>;
-  }
-
-  render() {
-    const CLEAR_BUTTON = "clear completed";
-    const notAllItemInfo =
-      this.state.filterKey === FILTER_STATUS.ALL
-        ? ""
-        : `${this.state.filterKey} items:${
-            this.getTodosByFilterKey(this.state.filterKey).length
-          }`;
-    const itemInfo = `${FILTER_STATUS.ALL} items:${this.state.todos.length} ${notAllItemInfo}`;
-    const showClearButton = {
-      visibility: this.isNeededClear(this.state) ? "visible" : "hidden"
-    };
-    return (
-      <div className="todo-list-frame">
-        <form className="add-item-area" onSubmit={this.handleAddSubmit}>
-          <label className="tick-label" onClick={this.handleToggleAllItems}>
-            {this.buildCheckIcon()}
-          </label>
-          <input
-            type="text"
-            className="add-item-input"
-            value={this.state.currentNewTitle}
-            onChange={this.handleAddChange}
-            placeholder="enter to add a todo list"
-            required
-          />
-        </form>
-        {this.getTodosByFilterKey(this.state.filterKey).map(todo => (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            handleItemDelete={() => this.handleItemDelete(todo.id)}
-            handleEditEnter={this.handleEditEnter}
-            handleChangeCompletedStatus={() =>
-              this.handleChangeCompletedStatus(todo.completed, todo.id)
-            }
-          />
-        ))}
-        <div className="filter-item-area">
-          <span className="remaining-span">{itemInfo}</span>
-          <span className="filter-span">
-            {filterRadios.map((filterRadio, index) => (
-              <li
-                className={this.getButtonClassByFilterKey(filterRadio)}
-                key={index}
-                value={filterRadio}
-                onClick={() => this.handleChangeFilterKey(filterRadio)}
-              >
-                {filterRadio}
-              </li>
-            ))}
-          </span>
-          <span className="clear-span">
+  return (
+    <div className="todo-list-frame">
+      <form className="add-item-area" onSubmit={(e) => handleAddSubmit(e)}>
+        <label className="tick-label" onClick={() => handleToggleAllItems()}>
+          {getCheckIcon()}
+        </label>
+        <input
+          type="text"
+          className="add-item-input"
+          value={currentNewTitle}
+          onChange={(e) => handleAddChange(e)}
+          placeholder="enter to add a todo list"
+          required
+        />
+      </form>
+      {getTodosByFilterKey(filterKey).map((todo) => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          handleItemDelete={handleItemDelete}
+          handleEditEnter={handleEditEnter}
+          handleChangeCompletedStatus={handleChangeCompletedStatus}
+        />
+      ))}
+      <div className="filter-item-area">
+        <span className="remaining-span">{jointedItemInfo}</span>
+        <span className="filter-span">
+          {filterRadios.map((filterRadio, index) => (
             <li
-              className="clear-li"
-              style={showClearButton}
-              onClick={this.clearCompleted}
+              className={getButtonStyleByFilterKey(filterRadio)}
+              key={index}
+              value={filterRadio}
+              onClick={() => handleChangeFilterKey(filterRadio)}
             >
-              {CLEAR_BUTTON}
+              {filterRadio}
             </li>
-          </span>
-        </div>
+          ))}
+        </span>
+        <span className="clear-span">
+          <li
+            className="clear-li"
+            style={showClearButton}
+            onClick={() => handleClearCompleted()}
+          >
+            {CLEAR_BUTTON}
+          </li>
+        </span>
       </div>
-    );
-  }
+    </div>
+  );
 }
