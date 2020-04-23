@@ -1,6 +1,24 @@
 import React, { useState } from "react";
 
-export function TodoItem(props) {
+export function EditAndDeleteItemsArea(props) {
+  return (
+    <div className="todo-item-area" key={props.todo.id}>
+      <label className="todo-item">
+        <EditItemLabel
+          todo={props.todo}
+          handleEditEnter={props.handleEditEnter}
+          handleChangeCompletedStatus={props.handleChangeCompletedStatus}
+        />
+        <DeleteItemButton
+          handleItemDelete={props.handleItemDelete}
+          id={props.todo.id}
+        />
+      </label>
+    </div>
+  );
+}
+
+function EditItemLabel(props) {
   const [editStatus, setEditState] = useState(false);
   const [currentValue, setCurrentValue] = useState("");
   const itemLabelStyle = {
@@ -34,40 +52,32 @@ export function TodoItem(props) {
   };
 
   return (
-    <div className="todo-item-area" key={props.todo.id}>
-      <label className="todo-item">
-        <label className="todo-item-label">
-          <CheckItemIcon
-            handleChangeCompletedStatus={props.handleChangeCompletedStatus}
-            todo={props.todo}
-          />
-          <input className="todo-item-checkbox-input" type="checkbox" />
-          {editStatus ? (
-            <input
-              type="text"
-              className="todo-item-input"
-              value={currentValue}
-              onChange={(e) => handleEditChange(e)}
-              onKeyDown={(e) => handleEditKeyDown(e)}
-              onBlur={() => handleEditKeyEnter()}
-              autoFocus={true}
-            />
-          ) : (
-            <label
-              className="todo-item-text"
-              onDoubleClick={(e) => handleItemDoubleClicked(e)}
-              style={itemLabelStyle}
-            >
-              {props.todo.title}
-            </label>
-          )}
-        </label>
-        <DeleteItemIcon
-          handleItemDelete={props.handleItemDelete}
-          id={props.todo.id}
+    <label className="todo-item-label">
+      <CheckItemIcon
+        todo={props.todo}
+        handleChangeCompletedStatus={props.handleChangeCompletedStatus}
+      />
+      <input className="todo-item-checkbox-input" type="checkbox" />
+      {editStatus ? (
+        <input
+          type="text"
+          className="todo-item-input"
+          value={currentValue}
+          onChange={(e) => handleEditChange(e)}
+          onKeyDown={(e) => handleEditKeyDown(e)}
+          onBlur={() => handleEditKeyEnter()}
+          autoFocus={true}
         />
-      </label>
-    </div>
+      ) : (
+        <label
+          className="todo-item-text"
+          onDoubleClick={(e) => handleItemDoubleClicked(e)}
+          style={itemLabelStyle}
+        >
+          {props.todo.title}
+        </label>
+      )}
+    </label>
   );
 }
 
@@ -87,7 +97,7 @@ function CheckItemIcon(props) {
   );
 }
 
-function DeleteItemIcon(props) {
+function DeleteItemButton(props) {
   const DELETE = "x";
   return (
     <label
